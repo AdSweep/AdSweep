@@ -56,9 +56,9 @@ coltable=/opt/pihole/COL_TABLE
 webroot="/var/www/html"
 
 # We store several other directories and
-webInterfaceGitUrl="https://github.com/pi-hole/AdminLTE.git"
+webInterfaceGitUrl="https://github.com/AdSweep/AdminLTE.git"
 webInterfaceDir="${webroot}/admin"
-piholeGitUrl="https://github.com/pi-hole/pi-hole.git"
+piholeGitUrl="https://github.com/AdSweep/AdSweep.git"
 PI_HOLE_LOCAL_REPO="/etc/.pihole"
 # These are the names of pi-holes files, stored in an array
 PI_HOLE_FILES=(chronometer list piholeDebug piholeLogFlush setupLCD update version gravity uninstall webpage)
@@ -141,28 +141,22 @@ fi
 # A simple function that just echoes out our logo in ASCII format
 # This lets users know that it is a Pi-hole, LLC product
 show_ascii_berry() {
-  echo -e "
-        ${COL_LIGHT_GREEN}.;;,.
-        .ccccc:,.
-         :cccclll:.      ..,,
-          :ccccclll.   ;ooodc
-           'ccll:;ll .oooodc
-             .;cll.;;looo:.
-                 ${COL_LIGHT_RED}.. ','.
-                .',,,,,,'.
-              .',,,,,,,,,,.
-            .',,,,,,,,,,,,....
-          ....''',,,,,,,'.......
-        .........  ....  .........
-        ..........      ..........
-        ..........      ..........
-        .........  ....  .........
-          ........,,,,,,,'......
-            ....',,,,,,,,,,,,.
-               .',,,,,,,,,'.
-                .',,,,,,'.
-                  ..'''.${COL_NC}
-"
+	# --- Kleur Codes -------------------------------------------------
+	A='\033[32;40m'
+	D='\033[31;40m'
+	S='\033[37;40m'
+	
+	# --- Echo ASCII Logo -------------------------------------------
+	echo -e "
+${A}            ${D}    _ ${S} _____                        
+${A}     /\     ${D}   | |${S}/ ____|                       
+${A}    /  \    ${D} __| |${S} (_____      _____  ___ _ __  
+${A}   / /\ \   ${D}/ _| |${S}\___ \ \ /\ / / _ \/ _ \ -_ \ 
+${A}  / ____ \ ${D}( |_| |${S}____) \ V  V /  __/  __/ |_) |
+${A} /_/    \_\ ${D}\__-_|${S}_____/ \_/\_/ \___|\___| .__/ 
+${A}             ${D}      ${S}                       | |    
+${A}             ${D}      ${S}                       |_|
+	"
 }
 
 is_command() {
@@ -2246,12 +2240,15 @@ FTLinstall() {
     local binary
     binary="${1}"
 
+	# AdSweep: Always use master branch of our FTL Fork
+	url="https://github.com/AdSweep/ftl/releases/latest/download"
+
     # Determine which version of FTL to download
-    if [[ "${ftlBranch}" == "master" ]];then
-        url="https://github.com/pi-hole/ftl/releases/latest/download"
-    else
-        url="https://ftl.pi-hole.net/${ftlBranch}"
-    fi
+    # if [[ "${ftlBranch}" == "master" ]];then
+    #     url="https://github.com/pi-hole/ftl/releases/latest/download"
+    # else
+    #     url="https://ftl.pi-hole.net/${ftlBranch}"
+    # fi
 
     # If the download worked,
     if curl -sSL --fail "${url}/${binary}" -o "${binary}"; then
@@ -2262,6 +2259,8 @@ FTLinstall() {
         if sha1sum --status --quiet -c "${binary}".sha1; then
             printf "transferred... "
 
+			# AdSweep: Do something about this? host our own macvendor.db?
+			
             # Before stopping FTL, we download the macvendor database
             curl -sSL "https://ftl.pi-hole.net/macvendor.db" -o "${PI_HOLE_CONFIG_DIR}/macvendor.db" || true
             chmod 644 "${PI_HOLE_CONFIG_DIR}/macvendor.db"
@@ -2461,7 +2460,7 @@ FTLcheckUpdate() {
             FTLversion=$(/usr/bin/pihole-FTL tag)
             local FTLlatesttag
 
-            if ! FTLlatesttag=$(curl -sI https://github.com/pi-hole/FTL/releases/latest | grep --color=never -i Location | awk -F / '{print $NF}' | tr -d '[:cntrl:]'); then
+            if ! FTLlatesttag=$(curl -sI https://github.com/AdSweep/FTL/releases/latest | grep --color=never -i Location | awk -F / '{print $NF}' | tr -d '[:cntrl:]'); then
                 # There was an issue while retrieving the latest version
                 printf "  %b Failed to retrieve latest FTL release metadata" "${CROSS}"
                 return 3
@@ -2472,7 +2471,7 @@ FTLcheckUpdate() {
             else
                 printf "  %b Latest FTL Binary already installed (%s). Confirming Checksum...\\n" "${INFO}" "${FTLlatesttag}"
 
-                remoteSha1=$(curl -sSL --fail "https://github.com/pi-hole/FTL/releases/download/${FTLversion%$'\r'}/${binary}.sha1" | cut -d ' ' -f 1)
+                remoteSha1=$(curl -sSL --fail "https://github.com/AdSweep/FTL/releases/download/${FTLversion%$'\r'}/${binary}.sha1" | cut -d ' ' -f 1)
                 localSha1=$(sha1sum "$(which pihole-FTL)" | cut -d ' ' -f 1)
 
                 if [[ "${remoteSha1}" != "${localSha1}" ]]; then
@@ -2546,7 +2545,7 @@ main() {
         if is_command sudo ; then
             printf "%b  %b Sudo utility check\\n" "${OVER}"  "${TICK}"
             # Download the install script and run it with admin rights
-            exec curl -sSL https://raw.githubusercontent.com/pi-hole/pi-hole/master/automated%20install/basic-install.sh | sudo bash "$@"
+            exec curl -sSL https://raw.githubusercontent.com/AdSweep/AdSweep/release/v4.4/automated%20install/basic-install.sh | sudo bash "$@"
             exit $?
         # Otherwise,
         else
