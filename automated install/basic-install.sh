@@ -57,7 +57,7 @@ webroot="/var/www/html"
 
 # We store several other directories and
 webInterfaceGitUrl="https://github.com/AdSweep/AdminLTE.git"
-webInterfaceDir="${webroot}/admin"
+webInterfaceDir="${webroot}"
 piholeGitUrl="https://github.com/AdSweep/AdSweep.git"
 PI_HOLE_LOCAL_REPO="/etc/.pihole"
 # These are the names of pi-holes files, stored in an array
